@@ -1,0 +1,18 @@
+{
+    "lumi": {
+        "distribution": "lnN",
+        "scale": 1.025
+    },
+    "SF_DY+Jets": {
+        "distribution": "lnN",
+        "scale": {
+            "ZJetsToNuNu": 1.064
+        }
+    },
+    "SF_W+Jets": {
+        "distribution": "lnN",
+        "scale": {
+            "WJetsToLNu": 1.038
+        }
+    }
+}
