@@ -1,11 +1,7 @@
+#!/usr/bin/env python2
 r"""
-
 """
-import sys
-if sys.version_info.major == 3:
-    from pathlib import Path
-else:
-    from pathlib2 import Path
+from pathlib2 import Path
 import argparse
 from collections import defaultdict
 from functools import partial
@@ -74,7 +70,8 @@ def read_hists_from_dir(plotter_output_dir,
         hist = root_file.Get(hist_path)
         hist.SetName(process)
 
-        if process.startswith('VBF-EWKino_'):
+        # FIXME
+        if process.replace('-', '_').startswith('VBF_EWKino_'):
             assert h_sig is None
             h_sig = hist
         else:
@@ -83,9 +80,7 @@ def read_hists_from_dir(plotter_output_dir,
 
 
 def retrieve_hists_from_stack(plotter_output_path, step, kinematic, verbose):
-    raise NotImplementedError
-
-    plotter_output_file = ROOT.TFile(plotter_output_path, "READ")
+    plotter_output_file = ROOT.TFile(str(plotter_output_path), "READ")
     # TODO comment
     MEMORY.add(plotter_output_file)
 
@@ -100,12 +95,6 @@ def retrieve_hists_from_stack(plotter_output_path, step, kinematic, verbose):
         if each.GetName() != kinematic:
             continue
 
-        if verbose:
-            print('Found \'{}\''.format(process))
-
-        # TODO Entries are divided by the width of each bin.
-        # https://github.com/BSM3G/Plotter/blob/master/src/Plotter.cc#L826-L832
-
         if isinstance(each, ROOT.TH1D):
             h_sig = each
         elif isinstance(each, ROOT.THStack):
@@ -119,6 +108,22 @@ def retrieve_hists_from_stack(plotter_output_path, step, kinematic, verbose):
         raise RuntimeError
 
     h_bkg_list = list(h_bkg_stack.GetHists())
+
+    # TODO comment
+    for hist in [h_sig] + h_bkg_list:
+        process = hist.GetTitle()
+        if verbose:
+            print('Found \'{}\''.format(process))
+        hist.SetName(process)
+
+    # TODO Entries are divided by the width of each bin.
+    # https://github.com/BSM3G/Plotter/blob/master/src/Plotter.cc#L826-L832
+    # TODO consider error
+    for hist in [h_sig] + h_bkg_list:
+        for binx in range(1, hist.GetNbinsX() + 1):
+            content = hist.GetBinContent(binx) * hist.GetBinWidth(binx)
+            hist.SetBinContent(binx, content)
+
     return h_sig, h_bkg_list
 
 
@@ -245,7 +250,6 @@ def main():
             kinematic=args.kinematic,
             verbose=args.verbose)
     else:
-        raise NotImplementedError
         h_sig, h_bkg_list = retrieve_hists_from_stack(
             plotter_output_path=args.plotter_output,
             step=args.step,
@@ -253,10 +257,10 @@ def main():
             verbose=args.verbose)
 
     if h_sig is None:
-        raise RuntimeError
+        raise RuntimeError('signal not found')
 
     if len(h_bkg_list) == 0:
-        raise RuntimeError
+        raise RuntimeError('no background')
 
     ############################################################################
     # Step2, write a shape file
