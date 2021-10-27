@@ -1,0 +1,26 @@
+#
+imax 1
+jmax 14
+kmax *
+
+--------------------------------------------------------------------------------
+# shapes [process] [channel] [file] [histogram] [histogram_with_systematics]
+shapes * * shape.root $PROCESS
+shapes VBF-EWKino_WZ_M100_dM10 * shape.root $PROCESS
+
+--------------------------------------------------------------------------------
+# (no data)
+bin bin0
+
+--------------------------------------------------------------------------------
+# expected yields
+bin bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0 bin0
+process VBF-EWKino_WZ_M100_dM10 tbar{t}+X EWK_W WJetsToLNu SingleTop EWK_Z EWK_VV Higgs QCD DPS_VV VV tbar{t} ZJetsToNuNu Vgamma VVV
+process 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+rate 470.709085028 8.20433849055 907.796325215 5021.43770781 155.390105323 1013.45291721 29.3297007539 0.0381485029367 3974.56806826 0.0466081763996 230.814238384 688.21640836 5266.85746537 315.10083166 7.63686854188
+
+--------------------------------------------------------------------------------
+# systematics
+SF_DY+Jets lnN - - - - - - - - - - - - 1.064 - -
+SF_W+Jets lnN - - - 1.038 - - - - - - - - - - -
+lumi lnN 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025 1.025
